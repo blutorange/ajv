@@ -202,7 +202,8 @@ export class ValueScope extends Scope {
         let c = valueCode(name)
         if (c) {
           if (this.opts.esm && c instanceof NamedImport) {
-            code = _`${code}import { ${c.name} as ${name} } from ${c.module};${this.opts._n}`
+            const module = `${c.module}.js`
+            code = _`${code}import { ${c.name} as ${name} } from ${module};${this.opts._n}`
           } else {
             const def = this.opts.es5 ? varKinds.var : varKinds.const
             code = _`${code}${def} ${name} = ${c};${this.opts._n}`

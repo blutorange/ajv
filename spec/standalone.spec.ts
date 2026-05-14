@@ -32,14 +32,18 @@ function testImportTypeEsm(moduleCode: string) {
   assert.strictEqual(moduleCode.includes("import { "), true)
   assert.strictEqual(moduleCode.includes(" as "), true)
   assert.strictEqual(moduleCode.includes(' from "'), true)
+  assert.strictEqual(moduleCode.includes('.js";'), true)
   //Must not have
   assert.strictEqual(moduleCode.includes("require("), false)
+  assert.strictEqual(moduleCode.includes('.js.js'), false)
 }
 function testImportTypeCjs(moduleCode: string) {
   //Must have
   assert.strictEqual(moduleCode.includes(' = require("'), true)
   //Must not have
   assert.strictEqual(moduleCode.includes("import "), false)
+  assert.strictEqual(moduleCode.includes('.js")'), false)
+  assert.strictEqual(moduleCode.includes('.js.js'), false)
 }
 
 describe("standalone code generation", () => {
