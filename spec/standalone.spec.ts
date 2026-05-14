@@ -27,6 +27,21 @@ function testExportTypeCjs(moduleCode: string, singleExport: boolean) {
   assert.strictEqual(moduleCode.includes("export const"), false)
 }
 
+function testImportTypeEsm(moduleCode: string) {
+  //Must have
+  assert.strictEqual(moduleCode.includes("import { "), true)
+  assert.strictEqual(moduleCode.includes(" as "), true)
+  assert.strictEqual(moduleCode.includes(' from "'), true)
+  //Must not have
+  assert.strictEqual(moduleCode.includes("require("), false)
+}
+function testImportTypeCjs(moduleCode: string) {
+  //Must have
+  assert.strictEqual(moduleCode.includes(' = require("'), true)
+  //Must not have
+  assert.strictEqual(moduleCode.includes("import "), false)
+}
+
 describe("standalone code generation", () => {
   describe("multiple exports", () => {
     let ajv: Ajv
@@ -103,6 +118,28 @@ describe("standalone code generation", () => {
             throw err
           }
         }
+      })
+
+      it("should generate module code with require calls - CJS", () => {
+        ajv = new _Ajv({code: {source: true}})
+        ajv.addSchema(numSchema)
+        ajv.addSchema(strSchema)
+        const moduleCode = standaloneCode(ajv, {
+          validateNumber: "https://example.com/number.json",
+          validateString: "https://example.com/string.json",
+        })
+        testImportTypeCjs(moduleCode)
+      })
+
+      it("should generate module code with named imports - ESM", () => {
+        ajv = new _Ajv({code: {source: true, esm: true}})
+        ajv.addSchema(numSchema)
+        ajv.addSchema(strSchema)
+        const moduleCode = standaloneCode(ajv, {
+          validateNumber: "https://example.com/number.json",
+          validateString: "https://example.com/string.json",
+        })
+        testImportTypeEsm(moduleCode)
       })
     })
 
