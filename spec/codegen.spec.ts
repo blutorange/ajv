@@ -548,7 +548,7 @@ describe("code generation", () => {
       assert.strictEqual(gen.getScopeValue("func", fn)?.str, "func0")
       assert.strictEqual(gen.getScopeValue("func", fn)?.value?.code instanceof NamedImport, true)
       assert.strictEqual(gen.getScopeValue("func", fn)?.value?.ref, fn)
-      assert.strictEqual(gen.scopeCode().str, 'import { "default" as func0 } from "foo";')
+      assert.strictEqual(gen.scopeCode().str, 'import { "default" as func0 } from "foo.js";')
     })
   })
 })

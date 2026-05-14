@@ -29,4 +29,6 @@ export default function quote(s: string): string {
 }
 
 quote.code = 'require("ajv/dist/runtime/quote").default'
-quote.import = ["default", "ajv/dist/runtime/quote"] as const
+quote.import = ["quote", "ajv/dist/runtime/quote"] as const
+
+export {quote}

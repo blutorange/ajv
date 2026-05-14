@@ -35,7 +35,7 @@ function testImportTypeEsm(moduleCode: string) {
   assert.strictEqual(moduleCode.includes('.js";'), true)
   //Must not have
   assert.strictEqual(moduleCode.includes("require("), false)
-  assert.strictEqual(moduleCode.includes('.js.js'), false)
+  assert.strictEqual(moduleCode.includes(".js.js"), false)
 }
 function testImportTypeCjs(moduleCode: string) {
   //Must have
@@ -43,7 +43,7 @@ function testImportTypeCjs(moduleCode: string) {
   //Must not have
   assert.strictEqual(moduleCode.includes("import "), false)
   assert.strictEqual(moduleCode.includes('.js")'), false)
-  assert.strictEqual(moduleCode.includes('.js.js'), false)
+  assert.strictEqual(moduleCode.includes(".js.js"), false)
 }
 
 describe("standalone code generation", () => {
