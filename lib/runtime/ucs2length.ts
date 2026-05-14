@@ -18,4 +18,4 @@ export default function ucs2length(str: string): number {
 }
 
 ucs2length.code = 'require("ajv/dist/runtime/ucs2length").default'
-ucs2length.import = ["default", "ajv/dist/runtime/ucs2length.js"] as const
+ucs2length.import = ["default", "ajv/dist/runtime/ucs2length"] as const
