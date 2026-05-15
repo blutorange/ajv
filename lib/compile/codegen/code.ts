@@ -31,13 +31,13 @@ export class Name extends _CodeOrName {
 
 export class NamedImport extends _CodeOrName {
   private _str?: string
-  readonly name: string
-  readonly module: string
-  readonly extension: string
+  readonly name: string // the name of the symbol to import, can be empty for all imports (star import)
+  readonly module: string // the module (ID) to import from, without the extension
+  readonly extension: string // the extension to add to the module when importing, default is .js
 
   constructor(name: string, module: string, extension?: string) {
     super()
-    if (!IDENTIFIER.test(name)) throw new Error("CodeGen: name must be a valid identifier")
+    if (name && !IDENTIFIER.test(name)) throw new Error("CodeGen: name must be a valid identifier")
     this.name = name
     this.module = module
     this.extension = extension ?? ".js"
@@ -52,7 +52,9 @@ export class NamedImport extends _CodeOrName {
   }
 
   get str(): string {
-    return (this._str ??= `require(${safeStringify(this.module)}).${this.name}`)
+    return this.name
+      ? (this._str ??= `require(${safeStringify(this.module)}).${this.name}`)
+      : (this._str ??= `require(${safeStringify(this.module)})`)
   }
 
   get names(): UsedNames {

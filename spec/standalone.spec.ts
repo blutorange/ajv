@@ -6,7 +6,7 @@ import ajvFormats from "ajv-formats"
 import * as requireFromString from "require-from-string"
 import {importFromStringSync} from "module-from-string"
 import * as assert from "assert"
-import { NamedImport } from "../dist/compile/codegen"
+import {NamedImport} from "../dist/compile/codegen"
 
 function testExportTypeEsm(moduleCode: string, singleExport: boolean) {
   //Must have
@@ -405,30 +405,46 @@ describe("standalone code generation", () => {
       assert.strictEqual(validateUser({email: "foo@bar.com"}), true)
     })
 
-    it("should generate require calls when esm flag is disabled", () => {
+    it("should generate require call when esm flag is disabled", () => {
       const ajv = new _Ajv({code: {source: true, esm: false}})
       ajvFormats(ajv)
       ajv.addSchema(schema)
       const moduleCode = standaloneCode(ajv, {validateUser: "#/definitions/ProductPage"})
 
-      assert.strictEqual(moduleCode.includes('require("ajv-formats/dist/formats").fullFormats.uri'), true)
-      assert.strictEqual(moduleCode.includes('import {'), false)
+      assert.strictEqual(
+        moduleCode.includes('require("ajv-formats/dist/formats").fullFormats.uri'),
+        true
+      )
+      assert.strictEqual(moduleCode.includes("import {"), false)
       assert.strictEqual(moduleCode.includes('from "ajv-formats'), false)
     })
 
-    it("should generate import statements when esm flag is enabled", () => {
+    it("should generate named import statement when esm flag is enabled", () => {
       const ajv = new _Ajv({code: {source: true, esm: true}})
       // Can use ajvFormats(ajv) instead once ajv-format was updated to support ESM
       // ajvFormats(ajv)
       ajv.opts.code.formats = new NamedImport("formats", "ajv-formats/dist/formats", ".js")
-      ajv.addFormat("uri", () => true);
+      ajv.addFormat("uri", () => true)
 
       ajv.addSchema(schema)
       const moduleCode = standaloneCode(ajv, {validateUser: "#/definitions/ProductPage"})
 
       assert.strictEqual(moduleCode.includes('import { "formats"'), true)
       assert.strictEqual(moduleCode.includes('from "ajv-formats/dist/formats.js";'), true)
-      assert.strictEqual(moduleCode.includes('require('), false)
+      assert.strictEqual(moduleCode.includes("require("), false)
+    })
+
+    it("should generate star import statement when name is empty", () => {
+      const ajv = new _Ajv({code: {source: true, esm: true}})
+      ajv.opts.code.formats = new NamedImport("", "./myFormat", ".js")
+      ajv.addFormat("uri", () => true)
+
+      ajv.addSchema(schema)
+      const moduleCode = standaloneCode(ajv, {validateUser: "#/definitions/ProductPage"})
+
+      assert.strictEqual(moduleCode.includes("import * as "), true)
+      assert.strictEqual(moduleCode.includes('from "./myFormat.js";'), true)
+      assert.strictEqual(moduleCode.includes("require("), false)
     })
   })
 

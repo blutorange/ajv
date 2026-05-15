@@ -32,7 +32,7 @@ describe("code generation", () => {
     it("throws if non-identifier is passed", () => {
       assert.throws(() => new NamedImport("1x", "foo"), /name must be a valid identifier/)
       assert.throws(() => new NamedImport("-x", "foo"), /name must be a valid identifier/)
-      assert.throws(() => new NamedImport("", "foo"), /name must be a valid identifier/)
+      new NamedImport("", "foo")
       new NamedImport("x", "foo")
     })
 
@@ -46,6 +46,10 @@ describe("code generation", () => {
 
     it("returns require call from toString method", () => {
       assert.strictEqual(new NamedImport("x", "foo").toString(), 'require("foo").x')
+    })
+
+    it("returns require call without property when name is empty", () => {
+      assert.strictEqual(new NamedImport("", "foo").str, 'require("foo")')
     })
 
     it("returns empty object from names getter", () => {
