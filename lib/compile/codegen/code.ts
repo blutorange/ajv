@@ -33,12 +33,14 @@ export class NamedImport extends _CodeOrName {
   private _str?: string
   readonly name: string
   readonly module: string
+  readonly extension: string
 
-  constructor(name: string, module: string) {
+  constructor(name: string, module: string, extension?: string) {
     super()
     if (!IDENTIFIER.test(name)) throw new Error("CodeGen: name must be a valid identifier")
     this.name = name
     this.module = module
+    this.extension = extension ?? ".js"
   }
 
   toString(): string {

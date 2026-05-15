@@ -6,6 +6,7 @@ import ajvFormats from "ajv-formats"
 import * as requireFromString from "require-from-string"
 import {importFromStringSync} from "module-from-string"
 import * as assert from "assert"
+import { NamedImport } from "../dist/compile/codegen"
 
 function testExportTypeEsm(moduleCode: string, singleExport: boolean) {
   //Must have
@@ -377,6 +378,17 @@ describe("standalone code generation", () => {
           required: ["email"],
           additionalProperties: false,
         },
+        ProductPage: {
+          type: "object",
+          properties: {
+            location: {
+              type: "string",
+              format: "uri",
+            },
+          },
+          required: ["uri"],
+          additionalProperties: false,
+        },
       },
     }
 
@@ -391,6 +403,32 @@ describe("standalone code generation", () => {
       assert.strictEqual(validateUser({}), false)
       assert.strictEqual(validateUser({email: "foo"}), false)
       assert.strictEqual(validateUser({email: "foo@bar.com"}), true)
+    })
+
+    it("should generate require calls when esm flag is disabled", () => {
+      const ajv = new _Ajv({code: {source: true, esm: false}})
+      ajvFormats(ajv)
+      ajv.addSchema(schema)
+      const moduleCode = standaloneCode(ajv, {validateUser: "#/definitions/ProductPage"})
+
+      assert.strictEqual(moduleCode.includes('require("ajv-formats/dist/formats").fullFormats.uri'), true)
+      assert.strictEqual(moduleCode.includes('import {'), false)
+      assert.strictEqual(moduleCode.includes('from "ajv-formats'), false)
+    })
+
+    it("should generate import statements when esm flag is enabled", () => {
+      const ajv = new _Ajv({code: {source: true, esm: true}})
+      // Can use ajvFormats(ajv) instead once ajv-format was updated to support ESM
+      // ajvFormats(ajv)
+      ajv.opts.code.formats = new NamedImport("formats", "ajv-formats/dist/formats", ".js")
+      ajv.addFormat("uri", () => true);
+
+      ajv.addSchema(schema)
+      const moduleCode = standaloneCode(ajv, {validateUser: "#/definitions/ProductPage"})
+
+      assert.strictEqual(moduleCode.includes('import { "formats"'), true)
+      assert.strictEqual(moduleCode.includes('from "ajv-formats/dist/formats.js";'), true)
+      assert.strictEqual(moduleCode.includes('require('), false)
     })
   })
 
